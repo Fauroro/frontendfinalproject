@@ -36,7 +36,12 @@ a {
 li {
 	list-style: none;
 }
-
+/* .fade:not(.show) {
+    opacity: 1;
+}
+.modal{
+	display: block;
+} */
 
 /* SIDEBAR */
 #sidebar {
