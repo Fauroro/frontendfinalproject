@@ -29,6 +29,18 @@ body {
 	overflow-x: hidden;
 }
 
+.bodylogin {
+	background: url("https://static.vecteezy.com/system/resources/thumbnails/038/811/271/small_2x/ai-generated-beautiful-background-for-garden-spring-party-advertising-free-photo.jpeg") no-repeat center center fixed;
+	background-size: cover;
+}
+
+.formlogin{
+	background: var(--grey);
+	padding: 3% 4%;
+	border-radius: 15px;
+	box-shadow: rgb(92, 90, 90) 0px 0px 40px 15px;
+}
+
 a {
 	text-decoration: none;
 }
