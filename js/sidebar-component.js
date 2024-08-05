@@ -18,8 +18,8 @@ export class SidebarComponent extends HTMLElement {
                 <li>
                     <a href="#"><i class='bx bxs-inbox icon'></i> Productos <i class='bx bx-chevron-right icon-right'></i></a>
                     <ul class="side-dropdown">
-                        <li><a href="#">Agregar Productos</a></li>
-                        <li><a href="#">Ver Productos</a></li>
+                        <li><a href="#" id="add-products">Agregar Productos</a></li>
+                        <li><a href="#" id="see-products">Ver Productos</a></li>
                     </ul>
                 </li>
                 <li><a href="#"><i class='bx bxs-chart icon'></i> Charts</a></li>
