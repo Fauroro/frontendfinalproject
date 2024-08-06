@@ -1,8 +1,7 @@
 import { isEmpty, isPositiveInteger, isPositiveNumber } from './validations.js';
-
+import { getFunction, postFunction, putFunction, delFunction } from '../api/apirest.js';
 
 document.addEventListener('DOMContentLoaded', function () {
-
 
 	const productContent = document.querySelector(".content-data")
 	const seeProducts = document.querySelector("#see-products")
@@ -11,19 +10,37 @@ document.addEventListener('DOMContentLoaded', function () {
 	seeProducts.addEventListener("click", seeProductsMenu)
 	addProducts.addEventListener("click", addProductsMenu)
 
-
 	async function seeProductsMenu(e) {
 		e.preventDefault();
-
-		const respuesta = await getProduct();
-		console.log(respuesta);
-
-
+		const respuesta = await getFunction("products");
+		const dataProducts = respuesta.products;
+		const dataGamma = respuesta.gammas;
+		
 		// Genera el contenido HTML para los productos
 		productContent.innerHTML = /*html*/ `
-    <div class="head">
-        <h3>Productos</h3>
-    </div>
+		<div class="container text-center">
+						<div class="row">
+							<div class="col text-start">
+								<h3>Productos</h3>
+							</div>
+							<div class="col">
+								<div class="input-group mb-3">
+									<label class="input-group-text" for="inputGroupSelect01">Gamma</label>
+									<select class="form-select form-gamma" id="inputGroupSelect01">
+										<option selected>Choose...</option>
+									</select>
+									<button class="btn btn-outline-success searchGamma" type="button">Filtrar</button>
+								</div>
+							</div>
+							<div class="col text-end">
+								<div class="input-group mb-3">
+									<label class="input-group-text" for="inputGroupSelect01">Stock minimo</label>
+									<input type="text" class="form-control form-stock" aria-label="">
+									<button class="btn btn-outline-success searchStock" type="button">Filtrar</button>
+								</div>
+							</div>
+						</div>
+					</div>
     <table class="table table-bordered border border-3">
         <thead>
             <tr>
@@ -132,64 +149,58 @@ document.addEventListener('DOMContentLoaded', function () {
     </section>
 `;
 
-		// Referencia a la tabla body y al botón de detalles
-		let tbody = document.querySelector(".tbody");
-		let detallesBtn = document.querySelector("#detallesBtn");
-
 		// Rellena la tabla con los productos
-		respuesta.products.forEach((opcion, index) => {
-			const newRow = document.createElement('tr');
+		createTable(dataProducts);
 
-			const th1 = document.createElement('th');
-			th1.setAttribute('scope', 'row');
-			th1.classList.add('radio', opcion.productCode);
-
-			const radioInput = document.createElement('input');
-			radioInput.classList.add('form-check-input');
-			radioInput.type = 'radio';
-			radioInput.name = 'flexRadioDefault';
-			radioInput.id = `flexRadioDefault${index}`; // id único para cada radio
-
-			th1.appendChild(radioInput);
-			newRow.appendChild(th1);
-
-			const td1 = document.createElement('td');
-			td1.textContent = opcion.productCode;
-			newRow.appendChild(td1);
-
-			const td2 = document.createElement('td');
-			td2.textContent = opcion.name;
-			newRow.appendChild(td2);
-
-			const td3 = document.createElement('td');
-			td3.textContent = opcion.gamma.name;
-			newRow.appendChild(td3);
-
-			tbody.appendChild(newRow);
+		// Rellena el select de gamma en el modal		
+		let selectForGamma = document.querySelector(".form-gamma");
+		dataGamma.forEach(opcion => {
+			const newOption = document.createElement('option');
+			newOption.value = opcion.gammaCode;
+			newOption.text = opcion.name;
+			selectForGamma.appendChild(newOption);
+		});
+		
+		let searchGammaButton = document.querySelector(".searchGamma");
+		searchGammaButton.addEventListener('click',async() =>{			
+			const productGamma = selectForGamma.value;
+			const productForGamma = await getFunction(`products/gamma/${productGamma}`);
+			createTable(productForGamma);
 		});
 
-		// Rellena el select de gamma en el modal
+		let inputForStock = document.querySelector(".form-stock")
+		let searchStockButton = document.querySelector(".searchStock");
+		searchStockButton.addEventListener('click',async() =>{			
+			const productStock = inputForStock.value;
+			if (isPositiveInteger(productStock)) {
+				alert('El stock debe ser un número entero positivo.');
+				return;
+			}
+			const productForStock = await getFunction(`products/stock/${productStock}`);
+			createTable(productForStock);
+		});
+
 		let select = document.querySelector("#gammaProducto");
-		respuesta.gammas.forEach(opcion => {
+		dataGamma.forEach(opcion => {
 			const newOption = document.createElement('option');
 			newOption.value = opcion.gammaCode;
 			newOption.text = opcion.name;
 			select.appendChild(newOption);
 		});
-
+		
 		// Función para llenar el modal con los detalles del producto seleccionado
+		let detallesBtn = document.querySelector("#detallesBtn");
 		detallesBtn.addEventListener('click', () => {
 			const selectedRadio = document.querySelector('input[name="flexRadioDefault"]:checked');
 
 			if (selectedRadio) {
-				const productCode = selectedRadio.closest('th').classList[1]; // Obtiene el productCode de la clase del <th>
+				const productCode = selectedRadio.closest('th').classList[1];
 				const producto = respuesta.products.find(p => p.productCode === productCode);
-
 				if (producto) {
 					document.querySelector('#codigoProducto').value = producto.productCode;
 					document.querySelector('#codigoProducto').setAttribute('disabled', true);
 					document.querySelector('#nombreProducto').value = producto.name;
-					document.querySelector('#gammaProducto').value = producto.gamma.gammaCode; // Rellena el select con el valor correspondiente
+					document.querySelector('#gammaProducto').value = producto.gamma.gammaCode;
 					document.querySelector('#precioProducto').value = producto.price;
 					document.querySelector('#stockProducto').value = producto.stock;
 					document.querySelector('#altoProducto').value = producto.height;
@@ -198,7 +209,6 @@ document.addEventListener('DOMContentLoaded', function () {
 					document.querySelector('#descripcionProducto').value = producto.description;
 				}
 			} else {
-				// Si no se ha seleccionado ningún producto, podrías mostrar un mensaje de advertencia o manejar el caso de manera apropiada
 				alert("Por favor, selecciona un producto.");
 			}
 
@@ -246,7 +256,6 @@ document.addEventListener('DOMContentLoaded', function () {
 				}
 
 				if (!isEmpty(productDepth)) {
-
 					if (isPositiveNumber(productDepth)) {
 						alert('El espesor debe ser un número positivo.');
 						return;
@@ -256,56 +265,31 @@ document.addEventListener('DOMContentLoaded', function () {
 				const product = {
 					"product": {
 						"name": productName,
-						"stock": parseInt(productStock, 10), // Convertir a entero
-						"price": parseFloat(productPrice),   // Convertir a flotante
+						"stock": parseInt(productStock, 10),
+						"price": parseFloat(productPrice),
 						"description": productDescription,
-						"height": parseFloat(productHeight), // Convertir a flotante
-						"width": parseFloat(productWidth),   // Convertir a flotante
-						"depth": parseFloat(productDepth)   // Convertir a flotante
+						"height": parseFloat(productHeight),
+						"width": parseFloat(productWidth),
+						"depth": parseFloat(productDepth)
 					},
 					"gammaCode": productGamma
 				};
 
-				putProduct(productCode, product)
-
+				putFunction(productCode, product, "products")
 				alert('Producto actualizado con éxito.');
 			});
 
-
 			document.querySelector('.btn-danger').addEventListener('click', function () {
 				const productCode = document.getElementById('codigoProducto').value;
-
-				delProduct(productCode);
+				delFunction(productCode, "products");
 				alert('Producto eliminado con éxito.');
-
 			});
-
 		});
-
-
-	}
-
-	const header = new Headers({
-		"Content-Type": "application/json"
-	})
-
-	const getProduct = async () => {
-		const resultado = await fetch("http://localhost:8080/garden/products", {
-			method: "GET",
-			headers: header,
-		})
-
-		const objJs = await resultado.json();
-		// console.log(objJs);
-		return objJs
-
 	}
 
 	async function addProductsMenu(e) {
 		e.preventDefault();
-
-		const respuesta = await getGamma();
-		console.log(respuesta);
+		const respuesta = await getFunction("gamma");
 
 		productContent.innerHTML = /*html*/ `
 			<div class="head">
@@ -374,7 +358,6 @@ document.addEventListener('DOMContentLoaded', function () {
 			</div>
 		`;
 
-
 		let select = document.querySelector("#productGamma");
 		respuesta.forEach(opcion => {
 			const newOption = document.createElement('option');
@@ -427,7 +410,6 @@ document.addEventListener('DOMContentLoaded', function () {
 			}
 
 			if (!isEmpty(productDepth)) {
-
 				if (isPositiveNumber(productDepth)) {
 					alert('El espesor debe ser un número positivo.');
 					return;
@@ -438,84 +420,53 @@ document.addEventListener('DOMContentLoaded', function () {
 				"product": {
 					"productCode": productCode,
 					"name": productName,
-					// "gamma": productGamma,
-					"stock": parseInt(productStock, 10), // Convertir a entero
-					"price": parseFloat(productPrice),   // Convertir a flotante
+					"stock": parseInt(productStock, 10),
+					"price": parseFloat(productPrice),
 					"description": productDescription,
-					"height": parseFloat(productHeight), // Convertir a flotante
-					"width": parseFloat(productWidth),   // Convertir a flotante
-					"depth": parseFloat(productDepth)   // Convertir a flotante
+					"height": parseFloat(productHeight),
+					"width": parseFloat(productWidth),
+					"depth": parseFloat(productDepth)
 				},
 				"gammaCode": productGamma
-
 			};
-
-			postProduct(product);
-
+			postFunction(product, "products");
 			alert('Producto guardado con éxito.');
 		});
 
 	}
 
-	const getGamma = async () => {
-		const resultado = await fetch("http://localhost:8080/garden/gamma", {
-			method: "GET",
-			headers: header,
-		})
+	const createTable = (data) => {
+		let tbody = document.querySelector(".tbody");
+		tbody.innerHTML=``;
+		data.forEach((opcion, index) => {
+			const newRow = document.createElement('tr');
 
-		const objJs = await resultado.json();
-		// console.log(objJs);
-		return objJs
+			const th1 = document.createElement('th');
+			th1.setAttribute('scope', 'row');
+			th1.classList.add('radio', opcion.productCode);
 
+			const radioInput = document.createElement('input');
+			radioInput.classList.add('form-check-input');
+			radioInput.type = 'radio';
+			radioInput.name = 'flexRadioDefault';
+			radioInput.id = `flexRadioDefault${index}`;
+
+			th1.appendChild(radioInput);
+			newRow.appendChild(th1);
+
+			const td1 = document.createElement('td');
+			td1.textContent = opcion.productCode;
+			newRow.appendChild(td1);
+
+			const td2 = document.createElement('td');
+			td2.textContent = opcion.name;
+			newRow.appendChild(td2);
+
+			const td3 = document.createElement('td');
+			td3.textContent = opcion.gamma.name;
+			newRow.appendChild(td3);
+
+			tbody.appendChild(newRow);
+		});
 	}
-
-	const postProduct = (datos) => {
-		return new Promise((resolve, reject) => {
-			fetch("http://localhost:8080/garden/products", {
-				method: "POST",
-				headers: header,
-				body: JSON.stringify(datos),
-			})
-				.then((res) => res.json())
-				.then((res) => {
-					resolve(res.id);
-				})
-				.catch((err) => {
-					reject(err);
-				});
-		});
-	};
-
-	const putProduct = (id, datos) => {
-		return new Promise((resolve, reject) => {
-			fetch(`http://localhost:8080/garden/products/${id}`, {
-				method: "PUT",
-				headers: header,
-				body: JSON.stringify(datos),
-			})
-				.then((res) => res.json())
-				.then((res) => {
-					resolve(res.id);
-				})
-				.catch((err) => {
-					reject(err);
-				});
-		});
-	};
-
-	const delProduct = (id) => {
-		return new Promise((resolve, reject) => {
-			fetch(`http://localhost:8080/garden/products/${id}`, {
-				method: "DELETE",
-				headers: header,
-			})
-				.then((res) => res.json())
-				.then((res) => {
-					resolve(res.id);
-				})
-				.catch((err) => {
-					reject(err);
-				});
-		});
-	};
 });
