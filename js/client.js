@@ -3,16 +3,16 @@ import { getFunction, postFunction, putFunction, delFunction } from '../api/apir
 
 document.addEventListener('DOMContentLoaded', function () {
 
-	const productContent = document.querySelector(".content-data")
-	const seeProducts = document.querySelector("#see-products")
-	const addProducts = document.querySelector("#add-products")
+	const clientContent = document.querySelector(".content-data")
+	const seeClients = document.querySelector("#see-clients")
+	const addClients = document.querySelector("#add-clients")
 
-	seeProducts.addEventListener("click", seeProductsMenu)
-	addProducts.addEventListener("click", addProductsMenu)
+	seeClients.addEventListener("click", seeClients)
+	addClients.addEventListener("click", addClients)
 
-	async function seeProductsMenu(e) {
+	async function seeClientsMenu(e) {
 		e.preventDefault();
-		const respuesta = await getFunction("products");
+		const respuesta = await getFunction("clients");
 		const dataProducts = respuesta.products;
 		const dataGamma = respuesta.gammas;
 		productContent.innerHTML = ``;

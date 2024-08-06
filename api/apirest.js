@@ -33,7 +33,7 @@ const postFunction = (datos,endpoint) => {
     });
 };
 
-const putFunction = (id, datos,endpoint) => {
+const putFunction = (id, datos, endpoint) => {
     return new Promise((resolve, reject) => {
         fetch(`${URL_API}${endpoint}/${id}`, {
             method: "PUT",
