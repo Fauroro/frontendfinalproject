@@ -140,13 +140,30 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-success">Guardar</button>
-                        <button type="button" class="btn btn-danger">Eliminar</button>
+                        <button type="button" class="btn btn-danger btnEliminar" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal">Eliminar</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+	<div class="modal fade" id="exampleModalToggle2" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+	<div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmar Eliminar</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Esta seguro que quiere eliminar la entrada?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-target="#staticBackdrop" data-bs-toggle="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger btnConfDel" data-bs-dismiss="modal">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+	</section>
 `;
 
 		// Rellena la tabla con los productos
@@ -160,9 +177,9 @@ document.addEventListener('DOMContentLoaded', function () {
 			newOption.text = opcion.name;
 			selectForGamma.appendChild(newOption);
 		});
-		
+
 		let searchGammaButton = document.querySelector(".searchGamma");
-		searchGammaButton.addEventListener('click',async() =>{			
+		searchGammaButton.addEventListener('click', async () => {
 			const productGamma = selectForGamma.value;
 			const productForGamma = await getFunction(`products/gamma/${productGamma}`);
 			createTable(productForGamma);
@@ -170,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 		let inputForStock = document.querySelector(".form-stock")
 		let searchStockButton = document.querySelector(".searchStock");
-		searchStockButton.addEventListener('click',async() =>{			
+		searchStockButton.addEventListener('click', async () => {
 			const productStock = inputForStock.value;
 			if (isPositiveInteger(productStock)) {
 				alert('El stock debe ser un número entero positivo.');
@@ -187,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			newOption.text = opcion.name;
 			select.appendChild(newOption);
 		});
-		
+
 		// Función para llenar el modal con los detalles del producto seleccionado
 		let detallesBtn = document.querySelector("#detallesBtn");
 		detallesBtn.addEventListener('click', () => {
@@ -279,7 +296,8 @@ document.addEventListener('DOMContentLoaded', function () {
 				alert('Producto actualizado con éxito.');
 			});
 
-			document.querySelector('.btn-danger').addEventListener('click', function () {
+			let btnConfDel = document.querySelector(".btnConfDel");
+			btnConfDel.addEventListener('click', () => {
 				const productCode = document.getElementById('codigoProducto').value;
 				delFunction(productCode, "products");
 				alert('Producto eliminado con éxito.');
@@ -437,7 +455,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	const createTable = (data) => {
 		let tbody = document.querySelector(".tbody");
-		tbody.innerHTML=``;
+		tbody.innerHTML = ``;
 		data.forEach((opcion, index) => {
 			const newRow = document.createElement('tr');
 

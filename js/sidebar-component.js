@@ -29,6 +29,13 @@ export class SidebarComponent extends HTMLElement {
                         <li><a href="#" id="see-clients">Ver Clientes</a></li>
                     </ul>
                 </li>
+                <li>
+                    <a href="#"><i class='bx bxs-inbox icon'></i> Pagos <i class='bx bx-chevron-right icon-right'></i></a>
+                    <ul class="side-dropdown">
+                        <li><a href="#" id="add-payment">Agregar Pagos</a></li>
+                        <li><a href="#" id="see-payment">Ver Pagos</a></li>
+                    </ul>
+                </li>
                 <li><a href="#"><i class='bx bxs-chart icon'></i> Charts</a></li>
                 <li><a href="#"><i class='bx bxs-widget icon'></i> Widgets</a></li>
                 <li class="divider" data-text="table and forms">Table and forms</li>

@@ -27,18 +27,17 @@ document.addEventListener('DOMContentLoaded', function () {
 							</div>
 							<div class="col">
 								<div class="input-group mb-3">
-									<label class="input-group-text" for="inputGroupSelect01">Gamma</label>
-									<select class="form-select form-gamma" id="inputGroupSelect01">
+									<label class="input-group-text" for="inputGroupSelect01">Ciudad</label>
+									<select class="form-select form-ciudad" id="inputGroupSelect01">
 										<option selected>Choose...</option>
 									</select>
-									<button class="btn btn-outline-success searchGamma" type="button">Filtrar</button>
+									<button class="btn btn-outline-success searchCity" type="button">Filtrar</button>
 								</div>
 							</div>
 							<div class="col text-end">
 								<div class="input-group mb-3">
-									<label class="input-group-text" for="inputGroupSelect01">Stock minimo</label>
-									<input type="text" class="form-control form-stock" aria-label="">
-									<button class="btn btn-outline-success searchStock" type="button">Filtrar</button>
+									<label class="input-group-text" for="inputGroupSelect01">Pedidos en Estado Pendiente</label>
+									<button class="btn btn-outline-success searchPending" type="button">Filtrar</button>
 								</div>
 							</div>
 						</div>
@@ -133,45 +132,56 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-success">Guardar</button>
-                        <button type="button" class="btn btn-danger">Eliminar</button>
+                        <button type="button" class="btn btn-danger btnEliminar" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal">Eliminar</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
         </div>
+		<div class="modal fade" id="exampleModalToggle2" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		<div class="modal-dialog">
+		<div class="modal-content">
+		  <div class="modal-header">
+			<h5 class="modal-title">Confirmar Eliminar</h5>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		  </div>
+		  <div class="modal-body">
+			<p>Esta seguro que quiere eliminar la entrada?</p>
+		  </div>
+		  <div class="modal-footer">
+			<button type="button" class="btn btn-secondary" data-bs-target="#staticBackdrop" data-bs-toggle="modal">Cancelar</button>
+			<button type="button" class="btn btn-danger btnConfDel" data-bs-dismiss="modal">Eliminar</button>
+		  </div>
+		</div>
+	  </div>
+	</div>
     </section>
 `;
 
 		// Rellena la tabla con los productos
 		createTable(dataClients);
 
-		// Rellena el select de gamma en el modal		
-		// let selectForGamma = document.querySelector(".form-gamma");
-		// dataGamma.forEach(opcion => {
-		// 	const newOption = document.createElement('option');
-		// 	newOption.value = opcion.gammaCode;
-		// 	newOption.text = opcion.name;
-		// 	selectForGamma.appendChild(newOption);
-		// });
+		// Rellena el select de gamma en el modal	
+		let selectForCiudad = document.querySelector(".form-ciudad");
+		dataCities.forEach(opcion => {
+			const newOption = document.createElement('option');
+			newOption.value = opcion.id;
+			newOption.text = opcion.name;
+			selectForCiudad.appendChild(newOption);
+		});	
 
-		// let searchGammaButton = document.querySelector(".searchGamma");
-		// searchGammaButton.addEventListener('click',async() =>{			
-		// 	const productGamma = selectForGamma.value;
-		// 	const productForGamma = await getFunction(`products/gamma/${productGamma}`);
-		// 	createTable(productForGamma);
-		// });
+		let searchCityButton = document.querySelector(".searchCity");
+		searchCityButton.addEventListener('click',async() =>{			
+			const clientCity = selectForCiudad.value;
+			const clientForCity = await getFunction(`clients/city/${clientCity}`);
+			createTable(clientForCity);
+		});
 
-		// let inputForStock = document.querySelector(".form-stock")
-		// let searchStockButton = document.querySelector(".searchStock");
-		// searchStockButton.addEventListener('click',async() =>{			
-		// 	const productStock = inputForStock.value;
-		// 	if (isPositiveInteger(productStock)) {
-		// 		alert('El stock debe ser un número entero positivo.');
-		// 		return;
-		// 	}
-		// 	const productForStock = await getFunction(`products/stock/${productStock}`);
-		// 	createTable(productForStock);
-		// });
+		let searchPendingButton = document.querySelector(".searchPending");
+		searchPendingButton.addEventListener('click',async() =>{			
+			const clientForPending = await getFunction(`clients/order/Pending`);
+			createTable(clientForPending);
+		});
 
 		let selectSalesRep = document.querySelector("#SalesRep");
 		dataRepSales.forEach(opcion => {
@@ -256,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				alert('Producto actualizado con éxito.');
 			});
 
-			document.querySelector('.btn-danger').addEventListener('click', function () {
+			document.querySelector('.btnConfDel').addEventListener('click', function () {
 				const clientCode = document.getElementById('codigoCliente').value;
 				delFunction(clientCode, "clients");
 				alert('Producto eliminado con éxito.');
@@ -368,7 +378,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			}
 			const client = {
 				client: {
-					id: 0, // Este campo es para el servidor, normalmente se inicializa como 0
+					id: clientCode, // Este campo es para el servidor, normalmente se inicializa como 0
 					name: clientName,
 					lastname: clientLastName,
 					creditLimit: clientCreditLimit,
