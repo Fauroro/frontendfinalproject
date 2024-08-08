@@ -1,75 +1,76 @@
+const URL_API = "http://localhost:8080/garden/";
 
-const URL_API = "http://localhost:8080/garden/"
-const header = new Headers({
-    "Content-Type": "application/json"
-})
+// Función para realizar solicitudes autenticadas
+async function makeAuthenticatedRequest(url, options = {}) {
+    const token = localStorage.getItem('token');
+    
+    if (!options.headers) {
+        options.headers = new Headers();
+    }
 
-const getFunction = async (endpoint) => {
-    const resultado = await fetch(`${URL_API}${endpoint}`, {
-        method: "GET",
-        headers: header,
-    })
+    options.headers.set("Content-Type", "application/json");
 
-    const objJs = await resultado.json();
-    // console.log(objJs);
-    return objJs
+    if (token) {
+        options.headers.set("Authorization", token.trim());
+    }
 
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    return response;
 }
 
-const postFunction = (datos,endpoint) => {
-    return new Promise((resolve, reject) => {
-        fetch(`${URL_API}${endpoint}`, {
-            method: "POST",
-            headers: header,
-            body: JSON.stringify(datos),
-        })
-            .then((res) => res.json())
-            .then((res) => {
-                resolve(res.id);
-            })
-            .catch((err) => {
-                reject(err);
-            });
+// Modificación de la función getFunction para usar makeAuthenticatedRequest
+const getFunction = async (endpoint) => {
+    const url = `${URL_API}${endpoint}`;
+    
+    const response = await makeAuthenticatedRequest(url, {
+        method: "GET"
     });
+
+    const objJs = await response.json();
+    return objJs;
 };
 
-const putFunction = (id, datos, endpoint) => {
-    return new Promise((resolve, reject) => {
-        fetch(`${URL_API}${endpoint}/${id}`, {
-            method: "PUT",
-            headers: header,
-            body: JSON.stringify(datos),
-        })
-            .then((res) => res.json())
-            .then((res) => {
-                resolve(res.id);
-            })
-            .catch((err) => {
-                reject(err);
-            });
+// Modificación de la función postFunction para usar makeAuthenticatedRequest
+const postFunction = async (datos, endpoint) => {
+    const url = `${URL_API}${endpoint}`;
+    
+    const response = await makeAuthenticatedRequest(url, {
+        method: "POST",
+        body: JSON.stringify(datos)
     });
+
+    const res = await response.json();
+    return res.id;
 };
 
-const delFunction = (id, endpoint) => {
-    return new Promise((resolve, reject) => {
-        fetch(`${URL_API}${endpoint}/${id}`, {
-            method: "DELETE",
-            headers: header,
-        })
-            .then((res) => {
-                if (!res.ok) {
-                    // Si la respuesta no es OK, lanzar un error
-                    throw new Error(`Error ${res.status}: ${res.statusText}`);
-                }
-                return res.json();
-            })
-            .then((res) => {
-                resolve(res.id);
-            })
-            .catch((err) => {
-                reject(err);
-            });
+// Modificación de la función putFunction para usar makeAuthenticatedRequest
+const putFunction = async (id, datos, endpoint) => {
+    const url = `${URL_API}${endpoint}/${id}`;
+    
+    const response = await makeAuthenticatedRequest(url, {
+        method: "PUT",
+        body: JSON.stringify(datos)
     });
+
+    const res = await response.json();
+    return res.id;
 };
 
-export {getFunction,postFunction,putFunction,delFunction}
+// Modificación de la función delFunction para usar makeAuthenticatedRequest
+const delFunction = async (id, endpoint) => {
+    const url = `${URL_API}${endpoint}/${id}`;
+    
+    const response = await makeAuthenticatedRequest(url, {
+        method: "DELETE"
+    });
+
+    const res = await response.json();
+    return res.id;
+};
+
+export { getFunction, postFunction, putFunction, delFunction };

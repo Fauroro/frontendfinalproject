@@ -15,6 +15,7 @@ document.getElementById('loginButton').addEventListener('click', async () => {
             const data = await response.json();
             const token = data.token;
             localStorage.setItem('token', 'Bearer ' + token); 
+
             alert('Login successful');
             window.location.href = "/index.html";
         } else {
@@ -28,17 +29,6 @@ document.getElementById('loginButton').addEventListener('click', async () => {
 });
 
 
-async function makeAuthenticatedRequest(url, options = {}) {
-    const token = localStorage.getItem('token');
-    if (!options.headers) {
-        options.headers = {};
-    }
-    if (token) {
-        options.headers['Authorization'] = token; 
-    }
-
-    const response = await fetch(url, options);
-    return response;
-}
+ 
 
 
