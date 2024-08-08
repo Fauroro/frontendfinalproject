@@ -50,13 +50,19 @@ const putFunction = (id, datos, endpoint) => {
     });
 };
 
-const delFunction = (id,endpoint) => {
+const delFunction = (id, endpoint) => {
     return new Promise((resolve, reject) => {
         fetch(`${URL_API}${endpoint}/${id}`, {
             method: "DELETE",
             headers: header,
         })
-            .then((res) => res.json())
+            .then((res) => {
+                if (!res.ok) {
+                    // Si la respuesta no es OK, lanzar un error
+                    throw new Error(`Error ${res.status}: ${res.statusText}`);
+                }
+                return res.json();
+            })
             .then((res) => {
                 resolve(res.id);
             })

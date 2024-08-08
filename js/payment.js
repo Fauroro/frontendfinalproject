@@ -258,11 +258,15 @@ document.addEventListener('DOMContentLoaded', function () {
 				putFunction(parseInt(clientCode), paymentDTO, "payment")
 				alert('Producto actualizado con éxito.');
 			});
-
-			document.querySelector('.btnConfDel').addEventListener('click', function () {
+			
+			document.querySelector('.btnConfDel').addEventListener('click', async function () {
 				const codigoPago = document.getElementById('codigoPago').value;
-				delFunction(codigoPago, "payment/payments");
-				alert('Producto eliminado con éxito.');
+				try {
+					await delFunction(codigoPago, "payment/payments");
+					alert('Producto eliminado con éxito.');
+				} catch (error) {
+					alert('No es posible eliminar');
+				}
 			});
 		});
 	}

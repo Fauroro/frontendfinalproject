@@ -295,12 +295,15 @@ document.addEventListener('DOMContentLoaded', function () {
 				putFunction(productCode, product, "products")
 				alert('Producto actualizado con éxito.');
 			});
-
-			let btnConfDel = document.querySelector(".btnConfDel");
-			btnConfDel.addEventListener('click', () => {
+			
+			document.querySelector('.btnConfDel').addEventListener('click', async function () {
 				const productCode = document.getElementById('codigoProducto').value;
-				delFunction(productCode, "products");
-				alert('Producto eliminado con éxito.');
+				try {
+					await delFunction(productCode, "products");
+					alert('Producto eliminado con éxito.');
+				} catch (error) {
+					alert('No es posible eliminar');
+				}
 			});
 		});
 	}

@@ -265,11 +265,15 @@ document.addEventListener('DOMContentLoaded', function () {
 				putFunction(parseInt(clientCode), client, "clients")
 				alert('Producto actualizado con éxito.');
 			});
-
-			document.querySelector('.btnConfDel').addEventListener('click', function () {
+			
+			document.querySelector('.btnConfDel').addEventListener('click', async function () {
 				const clientCode = document.getElementById('codigoCliente').value;
-				delFunction(clientCode, "clients");
-				alert('Producto eliminado con éxito.');
+				try {
+					await delFunction(clientCode, "clients");
+					alert('Producto eliminado con éxito.');
+				} catch (error) {
+					alert('No es posible eliminar');
+				}
 			});
 		});
 	}
