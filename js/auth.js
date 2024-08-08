@@ -15,6 +15,7 @@ document.getElementById('loginButton').addEventListener('click', async () => {
             const data = await response.json();
             const token = data.token;
             localStorage.setItem('token', 'Bearer ' + token); 
+            console.log(token);
 
             alert('Login successful');
             window.location.href = "/main.html";
