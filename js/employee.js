@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			document.querySelector('.btnConfDel').addEventListener('click', async function () {
 				const codigoEmpleado = document.getElementById('codigoEmpleado').value;
 				try {
-					await delFunction(codigoEmpleado, "employee");
+					await delFunction(parseInt(codigoEmpleado), "employee");
 					alert('Producto eliminado con éxito.');
 				} catch (error) {
 					alert('No es posible eliminar');
