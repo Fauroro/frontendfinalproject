@@ -23,30 +23,32 @@ document.addEventListener('DOMContentLoaded', function () {
         // Genera el contenido HTML para los pedidos
         orderContent.innerHTML = /*html*/ `
         <div class="container text-center">
-            <div class="row">
-                <div class="col text-start">
-                    <h3>Órdenes</h3>
-                </div>
-                <div class="col">
-                    <div class="input-group mb-3">
-                        <label class="input-group-text" for="inputGroupSelect01">Cliente</label>
-                        <select class="form-select form-client" id="inputGroupSelect01">
-                            <option selected value="">Choose...</option>
-                        </select>
-                        <button class="btn btn-outline-success searchClient" type="button">Filtrar</button>
-                    </div>
-                </div>
-                <div class="col text-end">
-                    <div class="input-group mb-3">
-                        <label class="input-group-text" for="estado">Estado</label>
-                        <select class="form-select form-status" id="estado">
-                            <option  selected value="">Choose...</option>
-                        </select>
-                        <button class="btn btn-outline-success searchStatus" type="button">Filtrar</button>
-                    </div>
+        <div class="row">
+            <div class="col text-start">
+                <h3>Órdenes</h3>
+            </div>
+            <div class="col text-end">
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="estado">Estado</label>
+                    <select class="form-select form-status" id="estado">
+                        <option selected value="">Choose...</option>
+                    </select>
+                    <button class="btn btn-outline-success searchStatus" type="button">Filtrar</button>
                 </div>
             </div>
+            <div class="col text-end">
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="startDate">Fecha Inicio</label>
+                    <input type="date" class="form-control form-start-date" id="startDate">
+                </div>
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="endDate">Fecha Fin</label>
+                    <input type="date" class="form-control form-end-date" id="endDate">
+                </div>
+                <button class="btn btn-outline-success searchDateRange" type="button">Filtrar</button>
+            </div>
         </div>
+    </div>
         <table class="table table-bordered border border-3">
             <thead>
                 <tr>
@@ -158,22 +160,38 @@ document.addEventListener('DOMContentLoaded', function () {
         // Rellena la tabla con las órdenes
         createTable(dataOrders);
 
-        // Rellena los selectores en el modal   (funcionando)
-        let selectForClient = document.querySelector(".form-client");
-        dataClients.forEach(opcion => {
-            const newOption = document.createElement('option');
-            newOption.value = opcion.id;
-            newOption.text = opcion.name;
-            selectForClient.appendChild(newOption);
-        });
-        //FIXME : no funciona porque bota los datos del cliente no los que corresponden al pedido del cliente
-        let searchClientButton = document.querySelector(".searchClient");
-        searchClientButton.addEventListener('click', async () => {
-            const clientID = selectForClient.value;
-            const ordersForClient = await getFunction(`clients/${clientID}`);
-            createTable(ordersForClient);
+        let searchDateRangeButton = document.querySelector(".searchDateRange");
+        searchDateRangeButton.addEventListener('click', async () => {
+            try {
+                const startDate = document.querySelector(".form-start-date").value;
+                const endDate = document.querySelector(".form-end-date").value;
+                console.log('Fecha Inicio:', startDate);
+                console.log('Fecha Fin:', endDate);
 
+                if (isEmpty(startDate) || isEmpty(endDate)) {
+                    alert('Por favor, seleccione ambas fechas.');
+                    return;
+                }
+
+                const ordersForDateRange = await getFunction(`orders/date/${startDate}/${endDate}`);
+                console.log('Orders for date range:', ordersForDateRange);
+
+                createTable(ordersForDateRange);
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+                alert('Hubo un problema al obtener los pedidos.');
+            }
         });
+
+        // // Rellena los selectores en el modal   (funcionando)
+        // let selectForClient = document.querySelector(".form-client");
+        // dataClients.forEach(opcion => {
+        //     const newOption = document.createElement('option');
+        //     newOption.value = opcion.id;
+        //     newOption.text = opcion.name;
+        //     selectForClient.appendChild(newOption);
+        // });
+       
 
         //funciona
         let selectEstado = document.querySelector("#estado");
@@ -192,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function () {
             selectEstadoModal.appendChild(newOption);
         });
 
-        //FIXME : funciona 
+        //funciona 
         let searchStatusButton = document.querySelector(".searchStatus");
         searchStatusButton.addEventListener('click', async () => {
             try {
@@ -373,13 +391,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // Validar tipos de datos
-            if (!isPositiveInteger(orderCode)) {
-                alert('El código de la orden debe ser un número entero positivo.');
-                return;
-            }
-
-            // Crear objeto de orden
+          
             const orderDTO = {
                 order: {
                     orderCode: orderCode,
@@ -449,3 +461,4 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
 });
+
