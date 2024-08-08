@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <div class="col-md-8">
                                     <div class="input-group">
                                         <div class="input-group-text">Estado</div>
-                                        <select class="form-select" id="estado">
+                                        <select class="form-select" id="estadoModal">
                                             <option selected value="">Choose...</option>
                                         </select>
                                     </div>
@@ -169,42 +169,49 @@ document.addEventListener('DOMContentLoaded', function () {
         //FIXME : no funciona porque bota los datos del cliente no los que corresponden al pedido del cliente
         let searchClientButton = document.querySelector(".searchClient");
         searchClientButton.addEventListener('click', async () => {
-        const clientID = selectForClient.value;
-        const ordersForClient = await getFunction(`clients/${clientID}`);
-        createTable(ordersForClient);
+            const clientID = selectForClient.value;
+            const ordersForClient = await getFunction(`clients/${clientID}`);
+            createTable(ordersForClient);
 
         });
 
-        //FIXME :no funciona 
-        document.addEventListener('DOMContentLoaded', () => {
-            let searchStatusButton = document.querySelector(".searchStatus");
-            searchStatusButton.addEventListener('click', async () => {
-                try {
-                    const statusID = document.querySelector(".form-status").value;
-                    console.log('Status ID:', statusID);
-        
-                    if (isEmpty(statusID)) {
-                        alert('Por favor, seleccione un estado.');
-                        return;
-                    }
-        
-                    const ordersForStatus = await getFunction(`orders/${statusID}`);
-                    console.log('Orders for status:', ordersForStatus);
-        
-                    createTable(ordersForStatus);
-                } catch (error) {
-                    console.error('Error fetching orders:', error);
-                    alert('Hubo un problema al obtener los pedidos.');
-                }
-            });
-        });
-        //funcionando mas o menos revisar id en el mismo coso
+        //funciona
         let selectEstado = document.querySelector("#estado");
         dataStatuses.forEach(opcion => {
             const newOption = document.createElement('option');
             newOption.value = opcion.id;
             newOption.text = opcion.name;
             selectEstado.appendChild(newOption);
+        });
+
+        let selectEstadoModal = document.querySelector("#estadoModal");
+        dataStatuses.forEach(opcion => {
+            const newOption = document.createElement('option');
+            newOption.value = opcion.id;
+            newOption.text = opcion.name;
+            selectEstadoModal.appendChild(newOption);
+        });
+
+        //FIXME : funciona 
+        let searchStatusButton = document.querySelector(".searchStatus");
+        searchStatusButton.addEventListener('click', async () => {
+            try {
+                const statusID = document.querySelector(".form-status").value;
+                console.log('Status ID:', statusID);
+
+                if (isEmpty(statusID)) {
+                    alert('Por favor, seleccione un estado.');
+                    return;
+                }
+
+                const ordersForStatus = await getFunction(`orders/status/${statusID}`);
+                console.log('Orders for status:', ordersForStatus);
+
+                createTable(ordersForStatus);
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+                alert('Hubo un problema al obtener los pedidos.');
+            }
         });
 
         //funcionando
@@ -218,64 +225,68 @@ document.addEventListener('DOMContentLoaded', function () {
 
         //  funcionando
         let detallesBtn = document.querySelector("#detallesBtn");
-detallesBtn.addEventListener('click', () => {
-    const selectedRadio = document.querySelector('input[name="flexRadioDefault"]:checked');
+        detallesBtn.addEventListener('click', () => {
+            const selectedRadio = document.querySelector('input[name="flexRadioDefault"]:checked');
 
-    if (selectedRadio) {
-        const orderCode = selectedRadio.closest('th').classList[1];
-        const order = dataOrders.find(p => p.orderCode === orderCode);
-        if (order) {
-            document.querySelector('#codigoOrden').value = order.orderCode;
-            document.querySelector('#fechaPedido').value = order.orderDate;
-            document.querySelector('#fechaEntrega').value = order.deliverDate;
-            document.querySelector('#comentario').value = order.commentary;
-            document.querySelector('#estado').value = order.status ? order.status.id : '';
-            document.querySelector('#cliente').value = order.client ? order.client.id : '';
-        }
-    } else {
-        alert("Por favor, selecciona una orden.");
-    }
-    // no funcionando
-    document.querySelector('.btn-success').addEventListener('click', function () {
-        // Obtener valores de los campos
-        const orderCode = document.getElementById('codigoOrden').value;
-        const orderDate = document.getElementById('fechaPedido').value;
-        const deliverDate = document.getElementById('fechaEntrega').value;
-        const commentary = document.getElementById('comentario').value;
-        const status = document.getElementById('estado').value;
-        const client = document.getElementById('cliente').value;
+            if (selectedRadio) {
+                const orderCode = selectedRadio.closest('th').classList[1];
+                const order = dataOrders.find(p => p.orderCode === orderCode);
+                if (order) {
+                    document.querySelector('#codigoOrden').value = order.orderCode;
+                    document.querySelector('#codigoOrden').setAttribute('disabled', true);
+                    document.querySelector('#fechaPedido').value = order.orderDate;
+                    document.querySelector('#fechaEntrega').value = order.deliverDate;
+                    document.querySelector('#comentario').value = order.commentary;
+                    document.querySelector('#estadoModal').value = order.status ? order.status.id : '';
+                    document.querySelector('#cliente').value = order.client ? order.client.id : '';
+                }
+            } else {
+                alert("Por favor, selecciona una orden.");
+            }
+            // funcionando
+            document.querySelector('.btn-success').addEventListener('click', function () {
+                // Obtener valores de los campos
+                const orderCode = document.querySelector('#codigoOrden').value;
+                const orderDate = document.querySelector('#fechaPedido').value;
+                const deliverDate = document.querySelector('#fechaEntrega').value;
+                const commentary = document.querySelector('#comentario').value;
+                const status = document.querySelector('#estadoModal').value;
+                const client = document.querySelector('#cliente').value;
 
-        // Validar campos
-        if (isEmpty(orderCode) || isEmpty(orderDate) || isEmpty(deliverDate) || isEmpty(status) || isEmpty(client)) {
-            alert('Todos los campos deben ser completados.');
-            return;
-        }
+                // Validar campos
+                // if (isEmpty(orderCode) || isEmpty(orderDate) || isEmpty(deliverDate) || isEmpty(status) || isEmpty(client)) {
+                //     alert('Todos los campos deben ser completados.');
+                //     return;
+                // }
 
-        // Crear objeto de orden
-        const order = {
-            orderCode: orderCode,
-            orderDate: orderDate,
-            deliverDate: deliverDate,
-            commentary: commentary,
-            status: { id: parseInt(status) },
-            client: { id: parseInt(client) }
-        };
+                // Crear objeto de orden
+                const orderDTO = {
+                    order: {
+                        orderCode: orderCode,
+                        orderDate: orderDate, 
+                        deliverDate: deliverDate, 
+                        commentary: commentary
+                    },
+                    clientId: parseInt(client),
+                    statusId: parseInt(status),
+                    details: [] 
+                };
 
-        putFunction(orderCode, order, "orders");
-        alert('Orden actualizada con éxito.');
-    });
-    
-    //no funcionando
-    document.querySelector('.btnConfDel').addEventListener('click', async function () {
-        const orderCode = document.getElementById('codigoOrden').value;
-        try {
-            await delFunction(orderCode, "orders");
-            alert('Orden eliminada con éxito.');
-        } catch (error) {
-            alert('No es posible eliminar');
-        }
-    });
-});
+                putFunction(orderCode, orderDTO, "orders");
+                alert('Orden actualizada con éxito.');
+            });
+
+            //no funcionando
+            document.querySelector('.btnConfDel').addEventListener('click', async function () {
+                const orderCode = document.getElementById('codigoOrden').value;
+                try {
+                    await delFunction(orderCode, "orders");
+                    alert('Orden eliminada con éxito.');
+                } catch (error) {
+                    alert('No es posible eliminar');
+                }
+            });
+        });
 
     }
 
@@ -355,35 +366,38 @@ detallesBtn.addEventListener('click', () => {
             const commentary = document.getElementById('comentario').value;
             const status = document.getElementById('estado').value;
             const client = document.getElementById('cliente').value;
-        
+
             // Validar campos
             if (isEmpty(orderCode)) {
                 alert('Id debe ser completado');
                 return;
             }
-        
+
             // Validar tipos de datos
             if (!isPositiveInteger(orderCode)) {
                 alert('El código de la orden debe ser un número entero positivo.');
                 return;
             }
-        
+
             // Crear objeto de orden
-            const order = {
-                orderCode: orderCode,
-                orderDate: orderDate,
-                deliverDate: deliverDate,
-                commentary: commentary,
-                status: { id: parseInt(status) },
-                client: { id: parseInt(client) }
+            const orderDTO = {
+                order: {
+                    orderCode: orderCode,
+                    orderDate: orderDate, 
+                    deliverDate: deliverDate,
+                    commentary: commentary
+                },
+                clientId: parseInt(client),
+                statusId: parseInt(status),
+                details: [] 
             };
-        
-            console.log(order);
-        
-            postFunction(order, "orders");
+
+            console.log(orderDTO);
+
+            postFunction(orderDTO, "orders");
             alert('Orden creada con éxito.');
         });
-        
+
 
     }
 
@@ -391,47 +405,47 @@ detallesBtn.addEventListener('click', () => {
     const createTable = (data) => {
         let tbody = document.querySelector(".tbody");
         tbody.innerHTML = ``;  // Limpiar el contenido anterior
-    
+
         data.forEach((opcion, index) => {
             const newRow = document.createElement('tr');
-    
+
             // Crear celda para el radio button
             const th1 = document.createElement('th');
             th1.setAttribute('scope', 'row');
             th1.classList.add('radio', opcion.orderCode);
-    
+
             const radioInput = document.createElement('input');
             radioInput.classList.add('form-check-input');
             radioInput.type = 'radio';
             radioInput.name = 'flexRadioDefault';
             radioInput.id = `flexRadioDefault${index}`;
-    
+
             th1.appendChild(radioInput);
             newRow.appendChild(th1);
-    
+
             // Crear y agregar celda para código de orden
             const td1 = document.createElement('td');
             td1.textContent = opcion.orderCode || 'N/A';
             newRow.appendChild(td1);
-    
+
             // Crear y agregar celda para fecha de pedido
             const td2 = document.createElement('td');
             td2.textContent = opcion.orderDate || 'N/A';
             newRow.appendChild(td2);
-    
+
             // Crear y agregar celda para fecha de entrega
             const td3 = document.createElement('td');
             td3.textContent = opcion.deliverDate || 'N/A';
             newRow.appendChild(td3);
-    
+
             // Crear y agregar celda para estado
             const td4 = document.createElement('td');
             // Asegurarse de que opcion.status es un objeto y tiene la propiedad name, de lo contrario mostrar 'N/A'
             td4.textContent = typeof opcion.status === 'object' && opcion.status !== null ? opcion.status.name : 'N/A';
             newRow.appendChild(td4);
-    
+
             tbody.appendChild(newRow);
         });
     };
-    
+
 });
