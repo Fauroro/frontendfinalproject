@@ -15,8 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		const dataClients = await getFunction("clients");
 		const dataRepSales = await getFunction("clients/employee");
 		const dataCities = await getFunction("clients/cities");
-		// const dataProducts = respuesta.products;
-		// const dataGamma = respuesta.gammas;
+
 		clientContent.innerHTML = ``;
 		// Genera el contenido HTML para los productos
 		clientContent.innerHTML = /*html*/ `
@@ -29,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
 								<div class="input-group mb-3">
 									<label class="input-group-text" for="inputGroupSelect01">Ciudad</label>
 									<select class="form-select form-ciudad" id="inputGroupSelect01">
-										<option selected>Choose...</option>
+										<option selected value="">Choose...</option>
 									</select>
 									<button class="btn btn-outline-success searchCity" type="button">Filtrar</button>
 								</div>
@@ -109,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <div class="input-group">
                                     <div class="input-group-text">Representante Ventas</div>
                                     <select class="form-select" id="SalesRep">
-                                        <option selected>Choose...</option>
+                                        <option selected value="">Choose...</option>
                                     </select>
                                 </div>
                             </div>
@@ -124,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function () {
 									<div class="input-group">
 										<div class="input-group-text">Ciudad</div>
 										<select class="form-select" id="ciudad">
-											<option selected>Choose...</option>
+											<option selected value="">Choose...</option>
 										</select>
 									</div>
 								</div>
@@ -213,7 +212,11 @@ document.addEventListener('DOMContentLoaded', function () {
 					document.querySelector('#nombreCliente').value = cliente.name;
 					document.querySelector('#apellidoCliente').value = cliente.lastname;
 					document.querySelector('#creditLimit').value = cliente.creditLimit;
-					document.querySelector('#SalesRep').value = cliente.salesRep.id;
+					if (cliente.salesRep === null) {
+						document.querySelector('#SalesRep').value = "";						
+					} else{
+						document.querySelector('#SalesRep').value = cliente.salesRep.id;
+					}
 					document.querySelector('#descripcionDireccion').value = cliente.address.description;
 					document.querySelector('#descripcionDireccion').setAttribute('disabled', true);
 					document.querySelector('#ciudad').value = cliente.address.city.id;
@@ -234,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				const clientCity = document.getElementById('ciudad').value;
 
 				// Validar campos
-				if (isEmpty(clientName) || isEmpty(clientCreditLimit)) {
+				if (isEmpty(clientCode) || isEmpty(clientName) || isEmpty(clientCreditLimit) || isEmpty(clientSalesRep)|| isEmpty(clientAddresDescription)|| isEmpty(clientCity)) {
 					alert('Todos los campos deben ser completados.');
 					return;
 				}
@@ -312,7 +315,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				<div class="input-group">
 					<div class="input-group-text">Representante Ventas</div>
 					<select class="form-select" id="SalesRep">
-						<option selected>Choose...</option>
+						<option selected value="">Choose...</option>
 					</select>
 				</div>
 			</div>
@@ -327,7 +330,7 @@ document.addEventListener('DOMContentLoaded', function () {
 					<div class="input-group">
 						<div class="input-group-text">Ciudad</div>
 						<select class="form-select" id="ciudad">
-							<option selected>Choose...</option>
+							<option selected value="">Choose...</option>
 						</select>
 					</div>
 				</div>
@@ -365,7 +368,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			const clientCity = document.getElementById('ciudad').value;
 
 			// Validar campos
-			if (isEmpty(clientCode) || isEmpty(clientName) || isEmpty(clientCreditLimit)) {
+			if (isEmpty(clientCode) || isEmpty(clientName) || isEmpty(clientCreditLimit) || isEmpty(clientSalesRep)|| isEmpty(clientAddresDescription)|| isEmpty(clientCity)) {
 				alert('Todos los campos deben ser completados.');
 				return;
 			}
