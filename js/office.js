@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function () {
 							<div class="col-md-6">
 								<div class="input-group">
 									<div class="input-group-text">Ciudad</div>
-									<select class="form-select" id="cityOffice">
+									<select class="form-select" id="cityOffice" value = "">
 										<option selected>Choose...</option>
 									</select>
 								</div>
@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function () {
 					document.querySelector('#officeId').setAttribute('disabled', true);
 					document.querySelector('#addressOffice').value = oficina.addres;
 					document.querySelector('#telOffice').value = oficina.telephone;
-					document.querySelector('#cityOffice').value = oficina.city.id;
+					document.querySelector('#cityOffice').value = oficina.city ? oficina.city.id : '';
 				}
 			} else {
 				alert("Por favor, selecciona un cliente.");
@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			<div class="col-md-6">
 				<div class="input-group">
 					<div class="input-group-text">Ciudad</div>
-					<select class="form-select" id="cityOffice">
+					<select class="form-select" id="cityOffice" value = "">
 						<option selected>Choose...</option>
 					</select>
 				</div>

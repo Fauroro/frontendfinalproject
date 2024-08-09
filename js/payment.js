@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function () {
 							</div>
 							<div class="input-group">
 								<div class="input-group-text">Nombre Cliente</div>
-								<select class="form-select" id="clientCode">
+								<select class="form-select" id="clientCode" value = "">
 									<option selected>Choose...</option>
 								</select>
 							</div>
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function () {
 							<div class="col-md-8">
 								<div class="input-group">
 									<div class="input-group-text">Metodo de Pago</div>
-									<select class="form-select" id="paymentType">
+									<select class="form-select" id="paymentType" value = "">
 										<option selected>Choose...</option>
 									</select>
 								</div>
@@ -215,10 +215,10 @@ document.addEventListener('DOMContentLoaded', function () {
 					document.querySelector('#codigoPago').value = pago.id;
 					document.querySelector('#codigoPago').setAttribute('disabled', true);
 					document.querySelector('#fechaPago').value = pago.payDate;
-					document.querySelector('#clientCode').value = pago.client.id;
+					document.querySelector('#clientCode').value = pago.client ? pago.client.id : '';
 					document.querySelector('#clientCode').setAttribute('disabled', true);
 					document.querySelector('#total').value = pago.total;
-					document.querySelector('#paymentType').value = pago.paymentType.id;
+					document.querySelector('#paymentType').value = pago.paymentType ? pago.paymentType.id : '';
 				}
 			} else {
 				alert("Por favor, selecciona un cliente.");
@@ -287,7 +287,7 @@ document.addEventListener('DOMContentLoaded', function () {
 							</div>
 							<div class="input-group">
 								<div class="input-group-text">Nombre Cliente</div>
-								<select class="form-select" id="clientCode">
+								<select class="form-select" id="clientCode" value = "">
 									<option selected>Choose...</option>
 								</select>
 							</div>
@@ -301,7 +301,7 @@ document.addEventListener('DOMContentLoaded', function () {
 							<div class="col-md-8">
 								<div class="input-group">
 									<div class="input-group-text">Metodo de Pago</div>
-									<select class="form-select" id="paymentType">
+									<select class="form-select" id="paymentType" value = "">
 										<option selected>Choose...</option>
 									</select>
 								</div>

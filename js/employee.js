@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function () {
 								<div class="col-md-6">
 									<div class="input-group">
 										<div class="input-group-text">Jefe Directo</div>
-										<select class="form-select" id="jefeId">
+										<select class="form-select" id="jefeId" value = "">
 											<option selected>Choose...</option>
 										</select>
 									</div>
@@ -121,14 +121,14 @@ document.addEventListener('DOMContentLoaded', function () {
 								<div class="col-md-6">
 									<div class="input-group">
 										<div class="input-group-text">Cargo</div>
-										<select class="form-select" id="positionId">
+										<select class="form-select" id="positionId" value = "">
 											<option selected>Choose...</option>
 										</select>
 									</div>
 								</div>
 									<div class="input-group">
 										<div class="input-group-text">Oficina</div>
-										<select class="form-select" id="OfficeId">
+										<select class="form-select" id="OfficeId" value = "">
 											<option selected>Choose...</option>
 										</select>
 									</div>
@@ -241,9 +241,9 @@ document.addEventListener('DOMContentLoaded', function () {
 					document.querySelector('#nombreEmpleado').value = empleado.name;
 					document.querySelector('#apellidoEmpleado').value = empleado.lastName;
 					document.querySelector('#correoEmpleado').value = empleado.email;
-					document.querySelector('#jefeId').value = empleado.boss.id;
-					document.querySelector('#positionId').value = empleado.position.id;
-					document.querySelector('#OfficeId').value = empleado.office.id;
+					document.querySelector('#jefeId').value = empleado.boss ? empleado.boss.id : ''; 
+					document.querySelector('#positionId').value = empleado.position ? empleado.position.id : ''; 
+					document.querySelector('#OfficeId').value = empleado.office ? empleado.office.id : ''; 
 				}
 			} else {
 				alert("Por favor, selecciona un cliente.");
@@ -335,7 +335,7 @@ document.addEventListener('DOMContentLoaded', function () {
 								<div class="col-md-6">
 									<div class="input-group">
 										<div class="input-group-text">Jefe Directo</div>
-										<select class="form-select" id="jefeId">
+										<select class="form-select" id="jefeId" value = "">
 											<option selected>Choose...</option>
 										</select>
 									</div>
@@ -343,14 +343,14 @@ document.addEventListener('DOMContentLoaded', function () {
 								<div class="col-md-6">
 									<div class="input-group">
 										<div class="input-group-text">Cargo</div>
-										<select class="form-select" id="positionId">
+										<select class="form-select" id="positionId" value = "">
 											<option selected>Choose...</option>
 										</select>
 									</div>
 								</div>
 									<div class="input-group">
 										<div class="input-group-text">Oficina</div>
-										<select class="form-select" id="OfficeId">
+										<select class="form-select" id="OfficeId" value = "">
 											<option selected>Choose...</option>
 										</select>
 									</div>

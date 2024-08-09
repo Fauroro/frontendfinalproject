@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             <div class="col-md-6">
                                 <div class="input-group">
                                     <div class="input-group-text">Gamma Producto</div>
-                                    <select class="form-select" id="gammaProducto">
+                                    <select class="form-select" id="gammaProducto" value = "">
                                         <option selected>Choose...</option>
                                     </select>
                                 </div>
@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function () {
 					document.querySelector('#codigoProducto').value = producto.productCode;
 					document.querySelector('#codigoProducto').setAttribute('disabled', true);
 					document.querySelector('#nombreProducto').value = producto.name;
-					document.querySelector('#gammaProducto').value = producto.gamma.gammaCode;
+					document.querySelector('#gammaProducto').value = producto.gamma ? producto.gamma.gammaCode : '';
 					document.querySelector('#precioProducto').value = producto.price;
 					document.querySelector('#stockProducto').value = producto.stock;
 					document.querySelector('#altoProducto').value = producto.height;
@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				<div class="col-md-6">
 						<div class="input-group">
 							<div class="input-group-text">Gamma Producto</div>
-							<select class="form-select" id="productGamma">
+							<select class="form-select" id="productGamma" value = "">
 								<option selected value="">Choose...</option>
 							</select>
 						</div>

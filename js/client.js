@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             <div class="col-md-8">
                                 <div class="input-group">
                                     <div class="input-group-text">Representante Ventas</div>
-                                    <select class="form-select" id="SalesRep">
+                                    <select class="form-select" id="SalesRep" value = "">
                                         <option selected value="">Choose...</option>
                                     </select>
                                 </div>
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function () {
 								<div class="col-md-6">
 									<div class="input-group">
 										<div class="input-group-text">Ciudad</div>
-										<select class="form-select" id="ciudad">
+										<select class="form-select" id="ciudad" value = "">
 											<option selected value="">Choose...</option>
 										</select>
 									</div>
@@ -212,14 +212,10 @@ document.addEventListener('DOMContentLoaded', function () {
 					document.querySelector('#nombreCliente').value = cliente.name;
 					document.querySelector('#apellidoCliente').value = cliente.lastname;
 					document.querySelector('#creditLimit').value = cliente.creditLimit;
-					if (cliente.salesRep === null) {
-						document.querySelector('#SalesRep').value = "";						
-					} else{
-						document.querySelector('#SalesRep').value = cliente.salesRep.id;
-					}
+					document.querySelector('#SalesRep').value = cliente.salesRep ? cliente.salesRep.id : '';
 					document.querySelector('#descripcionDireccion').value = cliente.address.description;
 					document.querySelector('#descripcionDireccion').setAttribute('disabled', true);
-					document.querySelector('#ciudad').value = cliente.address.city.id;
+					document.querySelector('#ciudad').value = cliente.address.city ? cliente.address.city.id : '';
 					document.querySelector('#ciudad').setAttribute('disabled', true);
 				}
 			} else {
@@ -313,8 +309,8 @@ document.addEventListener('DOMContentLoaded', function () {
 			</div>
 			<div class="col-md-8">
 				<div class="input-group">
-					<div class="input-group-text">Representante Ventas</div>
-					<select class="form-select" id="SalesRep">
+					<div class="input-group-text"  >Representante Ventas</div> 
+					<select class="form-select" id="SalesRep" value = "">
 						<option selected value="">Choose...</option>
 					</select>
 				</div>
@@ -328,8 +324,8 @@ document.addEventListener('DOMContentLoaded', function () {
 				</div>
 				<div class="col-md-6">
 					<div class="input-group">
-						<div class="input-group-text">Ciudad</div>
-						<select class="form-select" id="ciudad">
+						<div class="input-group-text">Ciudad</div> 
+						<select class="form-select" id="ciudad" value = "">
 							<option selected value="">Choose...</option>
 						</select>
 					</div>
