@@ -17,7 +17,7 @@ export class NavComponent extends HTMLElement {
             <span class="divider"></span>
             <div class="profile">
                 <img
-                    src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cGVvcGxlfGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+                    src="https://img.freepik.com/fotos-premium/forma-simbolo-perfil-verde_172429-469.jpg"
                     alt="">
                 <ul class="profile-link">
                     <li><a href="#" id="logoutButton"><i class='bx bxs-log-out-circle'></i> Logout</a></li>

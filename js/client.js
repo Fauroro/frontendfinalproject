@@ -399,7 +399,6 @@ document.addEventListener('DOMContentLoaded', function () {
 				cityId: clientCity,
 				salesRepId: clientSalesRep
 			};
-			console.log(client);
 			
 			await postFunction(client, "clients");
 			alert('Producto guardado con éxito.');

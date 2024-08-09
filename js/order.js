@@ -1,5 +1,6 @@
 import { isEmpty, isPositiveInteger, isPositiveNumber } from './validations.js';
 import { getFunction, postFunction, putFunction, delFunction } from '../api/apirest.js';
+import { updatePagination } from './pagination.js';
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -10,14 +11,15 @@ document.addEventListener('DOMContentLoaded', function () {
     seeOrders.addEventListener("click", seeOrdersMenu)
     addOrders.addEventListener("click", addOrdersMenu)
 
+    const itemsPerPage = 5; // Número de elementos por página
+	let currentPage = 1; // Página actual
+	let dataOrders = [];
+
     async function seeOrdersMenu(e) {
         e.preventDefault();
-        const dataOrders = await getFunction("orders");
-        console.log(dataOrders);
+        dataOrders = await getFunction("orders");
         const dataStatuses = await getFunction("orders/status");
-        console.log(dataStatuses);
         const dataClients = await getFunction("clients");
-        console.log(dataClients);
 
         orderContent.innerHTML = ``;
         // Genera el contenido HTML para los pedidos
@@ -70,15 +72,6 @@ document.addEventListener('DOMContentLoaded', function () {
         <br>
         <nav aria-label="Page navigation example">
             <ul class="pagination pagination-sm justify-content-center">
-                <li class="page-item disabled">
-                    <a class="page-link">Previous</a>
-                </li>
-                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item">
-                    <a class="page-link" href="#">Next</a>
-                </li>
             </ul>
         </nav>
         <section id="modal">
@@ -130,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             </form>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-success">Guardar</button>
+                            <button type="button" class="btn btn-success" data-bs-dismiss="modal">Guardar</button>
                             <button type="button" class="btn btn-danger btnEliminar" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal">Eliminar</button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
@@ -158,15 +151,13 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
 
         // Rellena la tabla con las órdenes
-        createTable(dataOrders);
+		fetchAndDisplayData(); // Inicializa la tabla y la paginación
 
         let searchDateRangeButton = document.querySelector(".searchDateRange");
         searchDateRangeButton.addEventListener('click', async () => {
             try {
                 const startDate = document.querySelector(".form-start-date").value;
                 const endDate = document.querySelector(".form-end-date").value;
-                console.log('Fecha Inicio:', startDate);
-                console.log('Fecha Fin:', endDate);
 
                 if (isEmpty(startDate) || isEmpty(endDate)) {
                     alert('Por favor, seleccione ambas fechas.');
@@ -174,7 +165,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 const ordersForDateRange = await getFunction(`orders/date/${startDate}/${endDate}`);
-                console.log('Orders for date range:', ordersForDateRange);
 
                 createTable(ordersForDateRange);
             } catch (error) {
@@ -182,16 +172,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('Hubo un problema al obtener los pedidos.');
             }
         });
-
-        // // Rellena los selectores en el modal   (funcionando)
-        // let selectForClient = document.querySelector(".form-client");
-        // dataClients.forEach(opcion => {
-        //     const newOption = document.createElement('option');
-        //     newOption.value = opcion.id;
-        //     newOption.text = opcion.name;
-        //     selectForClient.appendChild(newOption);
-        // });
-       
 
         //funciona
         let selectEstado = document.querySelector("#estado");
@@ -215,7 +195,6 @@ document.addEventListener('DOMContentLoaded', function () {
         searchStatusButton.addEventListener('click', async () => {
             try {
                 const statusID = document.querySelector(".form-status").value;
-                console.log('Status ID:', statusID);
 
                 if (isEmpty(statusID)) {
                     alert('Por favor, seleccione un estado.');
@@ -223,7 +202,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 const ordersForStatus = await getFunction(`orders/status/${statusID}`);
-                console.log('Orders for status:', ordersForStatus);
 
                 createTable(ordersForStatus);
             } catch (error) {
@@ -262,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert("Por favor, selecciona una orden.");
             }
             // funcionando
-            document.querySelector('.btn-success').addEventListener('click', function () {
+            document.querySelector('.btn-success').addEventListener('click', async function () {
                 // Obtener valores de los campos
                 const orderCode = document.querySelector('#codigoOrden').value;
                 const orderDate = document.querySelector('#fechaPedido').value;
@@ -290,8 +268,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     details: [] 
                 };
 
-                putFunction(orderCode, orderDTO, "orders");
+                await putFunction(orderCode, orderDTO, "orders");
                 alert('Orden actualizada con éxito.');
+                seeOrdersMenu(e);
             });
 
             //no funcionando
@@ -301,8 +280,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     await delFunction(orderCode, "orders");
                     alert('Orden eliminada con éxito.');
                 } catch (error) {
-                    alert('No es posible eliminar');
+					console.error('Error al eliminar el producto:', error);
+					alert('No es posible eliminar el producto. Intenta de nuevo más tarde.');                
                 }
+                seeOrdersMenu(e);
             });
         });
 
@@ -404,21 +385,35 @@ document.addEventListener('DOMContentLoaded', function () {
                 details: [] 
             };
 
-            console.log(orderDTO);
 
             postFunction(orderDTO, "orders");
             alert('Orden creada con éxito.');
+            addOrdersMenu(e);
         });
 
 
     }
+
+    const fetchAndDisplayData = () => {
+		createTable(dataOrders);
+		updatePagination(dataOrders.length, currentPage, itemsPerPage, (pageNum) => {
+			currentPage = pageNum;
+			fetchAndDisplayData(); // Volver a cargar los datos con la nueva página
+		});
+	};
 
     // funcionando
     const createTable = (data) => {
         let tbody = document.querySelector(".tbody");
         tbody.innerHTML = ``;  // Limpiar el contenido anterior
 
-        data.forEach((opcion, index) => {
+		// Calcular el índice inicial y final de los elementos a mostrar
+		const startIndex = (currentPage - 1) * itemsPerPage;
+		const endIndex = Math.min(startIndex + itemsPerPage, data.length);
+
+		// Añadir las filas correspondientes a la tabla
+		for (let i = startIndex; i < endIndex; i++) {
+			const opcion = data[i];
             const newRow = document.createElement('tr');
 
             // Crear celda para el radio button
@@ -430,7 +425,7 @@ document.addEventListener('DOMContentLoaded', function () {
             radioInput.classList.add('form-check-input');
             radioInput.type = 'radio';
             radioInput.name = 'flexRadioDefault';
-            radioInput.id = `flexRadioDefault${index}`;
+            radioInput.id = `flexRadioDefault${i}`;
 
             th1.appendChild(radioInput);
             newRow.appendChild(th1);
@@ -457,7 +452,7 @@ document.addEventListener('DOMContentLoaded', function () {
             newRow.appendChild(td4);
 
             tbody.appendChild(newRow);
-        });
+        };
     };
 
 });

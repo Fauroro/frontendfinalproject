@@ -1,5 +1,6 @@
 import { isEmpty, isPositiveInteger, isPositiveNumber } from './validations.js';
 import { getFunction, postFunction, putFunction, delFunction } from '../api/apirest.js';
+import { updatePagination } from './pagination.js';
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -10,14 +11,17 @@ document.addEventListener('DOMContentLoaded', function () {
 	seeEmployee.addEventListener("click", seeEmployeeMenu)
 	addEmployee.addEventListener("click", addEmployeeMenu)
 
+	const itemsPerPage = 5; // Número de elementos por página
+	let currentPage = 1; // Página actual
+	let dataEmployees = [];
+
 	async function seeEmployeeMenu(e) {
 		e.preventDefault();
 		const data = await getFunction("employee");
 		const dataOffices = data.offices;
 		const dataPositions = data.positions;
-		const dataEmployees = data.employees;
-		// const dataProducts = respuesta.products;
-		// const dataGamma = respuesta.gammas;
+		dataEmployees = data.employees;
+
 		employeeContent.innerHTML = ``;
 		// Genera el contenido HTML para los productos
 		employeeContent.innerHTML = /*html*/ `
@@ -26,15 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				<div class="col text-start">
 					<h3>Empleados</h3>
 				</div>
-				<div class="col-md-4">
-					<div class="input-group mb-4">
-						<label class="input-group-text" for="inputGroupSelect01">Metodo de Pago</label>
-						<select class="form-select form-payType" id="inputGroupSelect01">
-							<option selected>Choose...</option>
-						</select>
-						<button class="btn btn-outline-success searchPayType" type="button">Filtrar</button>
-					</div>
-				</div>
+
 				<div class="col text-end">
 					<div class="input-group mb-3">
 						<label class="input-group-text" for="inputGroupSelect01">Id de Oficina</label>
@@ -42,6 +38,12 @@ document.addEventListener('DOMContentLoaded', function () {
 						<button class="btn btn-outline-success searchOfficeId" type="button">Filtrar</button>
 					</div>
 				</div>
+				<div class="col text-end">
+				<div class="input-group mb-3">
+					<label class="input-group-text" for="inputGroupSelect01">Empleados Pedido pendiente</label>
+					<button class="btn btn-outline-success searchEmployeePending" type="button">Filtrar</button>
+				</div>
+			</div>
 			</div>
 		</div>
 		<table class="table table-bordered border border-3">
@@ -66,15 +68,6 @@ document.addEventListener('DOMContentLoaded', function () {
 		<br>
 		<nav aria-label="Page navigation example">
 			<ul class="pagination pagination-sm justify-content-center">
-				<li class="page-item disabled">
-					<a class="page-link">Previous</a>
-				</li>
-				<li class="page-item"><a class="page-link" href="#">1</a></li>
-				<li class="page-item"><a class="page-link" href="#">2</a></li>
-				<li class="page-item"><a class="page-link" href="#">3</a></li>
-				<li class="page-item">
-					<a class="page-link" href="#">Next</a>
-				</li>
 			</ul>
 		</nav>
 		<section id="modal">
@@ -136,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
 							</form>
 						</div>
 						<div class="modal-footer">
-							<button type="button" class="btn btn-success">Guardar</button>
+							<button type="button" class="btn btn-success" data-bs-dismiss="modal">Guardar</button>
 							<button type="button" class="btn btn-danger btnEliminar"
 								data-bs-target="#exampleModalToggle2" data-bs-toggle="modal">Eliminar</button>
 							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -174,23 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	`;
 
 		// Rellena la tabla con los productos
-		createTable(dataEmployees);
-
-		// Rellena el select de gamma en el modal	
-		// let selectForPayType = document.querySelector(".form-officeId");
-		// dataTypePayments.forEach(opcion => {
-		// 	const newOption = document.createElement('option');
-		// 	newOption.value = opcion.id;
-		// 	newOption.text = opcion.name;
-		// 	selectForPayType.appendChild(newOption);
-		// });
-
-		// let searchPayTypeButton = document.querySelector(".searchPayType");
-		// searchPayTypeButton.addEventListener('click', async () => {
-		// 	const payType = selectForPayType.value;
-		// 	const payTypeForId = await getFunction(`payment/payType/${payType}`);
-		// 	createTable(payTypeForId);
-		// });
+		fetchAndDisplayData(); // Inicializa la tabla y la paginación
 
 		let inputForOfficeId = document.querySelector(".form-officeId")
 		let searchOfficeIdButton = document.querySelector(".searchOfficeId");
@@ -227,6 +204,14 @@ document.addEventListener('DOMContentLoaded', function () {
 			selectModalForPosition.appendChild(newOption);
 		});
 
+		let searchPendingButton = document.querySelector(".searchEmployeePending");
+		searchPendingButton.addEventListener('click',async() =>{			
+			const dataEmployeePending = await getFunction("employee/pending")
+			console.log(dataEmployeePending);
+			
+			createTable(dataEmployeePending);
+		});		
+
 		// Función para llenar el modal con los detalles del producto seleccionado
 		let detallesBtn = document.querySelector("#detallesBtn");
 		detallesBtn.addEventListener('click', () => {
@@ -249,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				alert("Por favor, selecciona un cliente.");
 			}
 
-			document.querySelector('.btn-success').addEventListener('click', function () {
+			document.querySelector('.btn-success').addEventListener('click', async function () {
 				// Obtener valores de los campos
 				const codigoEmpleado = document.querySelector('#codigoEmpleado').value;
 				const nombreEmpleado = document.querySelector('#nombreEmpleado').value;
@@ -285,8 +270,9 @@ document.addEventListener('DOMContentLoaded', function () {
 					idPosition: parseInt(positionId, 10),
 					idOffice: parseInt(officeId, 10)
 				};
-				putFunction(parseInt(codigoEmpleado), employeeUpdateDTO, "employee")
+				await putFunction(parseInt(codigoEmpleado), employeeUpdateDTO, "employee")
 				alert('Producto actualizado con éxito.');
+				seeEmployeeMenu(e);
 			});
 
 			document.querySelector('.btnConfDel').addEventListener('click', async function () {
@@ -295,8 +281,10 @@ document.addEventListener('DOMContentLoaded', function () {
 					await delFunction(parseInt(codigoEmpleado), "employee");
 					alert('Producto eliminado con éxito.');
 				} catch (error) {
-					alert('No es posible eliminar');
+					console.error('Error al eliminar el producto:', error);
+					alert('No es posible eliminar el producto. Intenta de nuevo más tarde.');
 				}
+				seeEmployeeMenu
 			});
 		});
 	}
@@ -385,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			selectModalForPosition.appendChild(newOption);
 		});
 
-		document.getElementById('saveButton').addEventListener('click', function () {
+		document.getElementById('saveButton').addEventListener('click', async function () {
 			// Obtener valores de los campos
 			const codigoEmpleado = document.querySelector('#codigoEmpleado').value;
 			const nombreEmpleado = document.querySelector('#nombreEmpleado').value;
@@ -422,16 +410,31 @@ document.addEventListener('DOMContentLoaded', function () {
 				idOffice: parseInt(officeId, 10)
 		  };
 
-			postFunction(employeeUpdateDTO, "employee");
+			await postFunction(employeeUpdateDTO, "employee");
 			alert('Producto guardado con éxito.');
+			addEmployeeMenu(e);
 		});
 
 	}
 
+	const fetchAndDisplayData = () => {
+		createTable(dataEmployees);
+		updatePagination(dataEmployees.length, currentPage, itemsPerPage, (pageNum) => {
+			currentPage = pageNum;
+			fetchAndDisplayData(); // Volver a cargar los datos con la nueva página
+		});
+	};
+
 	const createTable = (data) => {
 		let tbody = document.querySelector(".tbody");
 		tbody.innerHTML = ``;
-		data.forEach((opcion, index) => {
+		// Calcular el índice inicial y final de los elementos a mostrar
+		const startIndex = (currentPage - 1) * itemsPerPage;
+		const endIndex = Math.min(startIndex + itemsPerPage, data.length);
+
+		// Añadir las filas correspondientes a la tabla
+		for (let i = startIndex; i < endIndex; i++) {
+			const opcion = data[i];
 			const newRow = document.createElement('tr');
 
 			const th1 = document.createElement('th');
@@ -442,7 +445,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			radioInput.classList.add('form-check-input');
 			radioInput.type = 'radio';
 			radioInput.name = 'flexRadioDefault';
-			radioInput.id = `flexRadioDefault${index}`;
+			radioInput.id = `flexRadioDefault${i}`;
 
 			th1.appendChild(radioInput);
 			newRow.appendChild(th1);
@@ -464,6 +467,6 @@ document.addEventListener('DOMContentLoaded', function () {
 			newRow.appendChild(td4);
 
 			tbody.appendChild(newRow);
-		});
+		};
 	}
 });

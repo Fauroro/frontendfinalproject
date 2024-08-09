@@ -3,9 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // SIDEBAR DROPDOWN
     const allDropdown = document.querySelectorAll('#sidebar .side-dropdown');
     const sidebar = document.getElementById('sidebar');
-	console.log(sidebar.classList);
 	
-
     allDropdown.forEach(item => {
         const a = item.parentElement.querySelector('a:first-child');
         a.addEventListener('click', function (e) {
