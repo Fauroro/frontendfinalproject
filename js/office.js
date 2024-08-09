@@ -1,5 +1,6 @@
 import { isEmpty, isPositiveInteger, isPositiveNumber } from './validations.js';
 import { getFunction, postFunction, putFunction, delFunction } from '../api/apirest.js';
+import { updatePagination } from './pagination.js';
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -10,13 +11,16 @@ document.addEventListener('DOMContentLoaded', function () {
 	seeOffice.addEventListener("click", seeOfficeMenu)
 	addOffice.addEventListener("click", addOfficeMenu)
 
+	const itemsPerPage = 5; // Número de elementos por página
+	let currentPage = 1; // Página actual
+	let dataOffices = [];
+
 	async function seeOfficeMenu(e) {
 		e.preventDefault();
 		const data = await getFunction("office");
-		const dataOffices = data.offices;
+		dataOffices = data.offices;
 		const dataCities = data.cities;
-		// const dataProducts = respuesta.products;
-		// const dataGamma = respuesta.gammas;
+
 		officeContent.innerHTML = ``;
 		// Genera el contenido HTML para los productos
 		officeContent.innerHTML = /*html*/ `
@@ -49,15 +53,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	<br>
 	<nav aria-label="Page navigation example">
 		<ul class="pagination pagination-sm justify-content-center">
-			<li class="page-item disabled">
-				<a class="page-link">Previous</a>
-			</li>
-			<li class="page-item"><a class="page-link" href="#">1</a></li>
-			<li class="page-item"><a class="page-link" href="#">2</a></li>
-			<li class="page-item"><a class="page-link" href="#">3</a></li>
-			<li class="page-item">
-				<a class="page-link" href="#">Next</a>
-			</li>
 		</ul>
 	</nav>
 	<section id="modal">
@@ -101,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
 						</form>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-success">Guardar</button>
+						<button type="button" class="btn btn-success" data-bs-dismiss="modal">Guardar</button>
 						<button type="button" class="btn btn-danger btnEliminar"
 							data-bs-target="#exampleModalToggle2" data-bs-toggle="modal">Eliminar</button>
 						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -134,8 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	`;
 
-		// Rellena la tabla con los productos
-		createTable(dataOffices);
+		fetchAndDisplayData(); // Inicializa la tabla y la paginación
 
 
 		let selectModalForCities = document.querySelector("#cityOffice");
@@ -165,32 +159,34 @@ document.addEventListener('DOMContentLoaded', function () {
 				alert("Por favor, selecciona un cliente.");
 			}
 
-			document.querySelector('.btn-success').addEventListener('click', function () {
+			document.querySelector('.btn-success').addEventListener('click', async function () {
 				// Obtener valores de los campos
 				const officeId = document.querySelector('#officeId').value;
 				const addressOffice = document.querySelector('#addressOffice').value;
 				const telOffice = document.querySelector('#telOffice').value;
 				const cityOffice = document.querySelector('#cityOffice').value;
 
-			// Validar campos
-			if (isEmpty(addressOffice) ||isEmpty(telOffice) || isEmpty(cityOffice)) {
-				alert('Todos los campos deben ser completados.');
-				return;
-			}
-			
+				// Validar campos
+				if (isEmpty(addressOffice) || isEmpty(telOffice) || isEmpty(cityOffice)) {
+					alert('Todos los campos deben ser completados.');
+					return;
+				}
+
 				const officeDTO = {
 					office: {
 						id: parseInt(officeId),
 						addres: addressOffice,
 						telephone: telOffice,
 						city: {
-							id: parseInt(cityOffice )
+							id: parseInt(cityOffice)
 						}
 					},
 					idCity: parseInt(cityOffice)
 				};
-				putFunction(parseInt(officeId), officeDTO, "office")
+				await putFunction(parseInt(officeId), officeDTO, "office")
 				alert('Producto actualizado con éxito.');
+				seeOfficeMenu(e); // Recarga la vista de oficinas
+
 			});
 
 			document.querySelector('.btnConfDel').addEventListener('click', async function () {
@@ -199,16 +195,19 @@ document.addEventListener('DOMContentLoaded', function () {
 					await delFunction(officeId, "office");
 					alert('Producto eliminado con éxito.');
 				} catch (error) {
-					alert('No es posible eliminar');
+					console.error('Error al eliminar el producto:', error);
+					alert('No es posible eliminar el producto. Intenta de nuevo más tarde.');
 				}
+				seeOfficeMenu(e); 
 			});
+
 		});
 	}
 
 	async function addOfficeMenu(e) {
 		e.preventDefault();
 		const data = await getFunction("office");
-		const dataOffices = data.offices;
+		dataOffices = data.offices;
 		const dataCities = data.cities;
 
 		officeContent.innerHTML = /*html*/ `
@@ -250,14 +249,14 @@ document.addEventListener('DOMContentLoaded', function () {
 			selectModalForCities.appendChild(newOption);
 		});
 
-		document.getElementById('saveButton').addEventListener('click', function () {
+		document.getElementById('saveButton').addEventListener('click', async function () {
 			// Obtener valores de los campos
 			const addressOffice = document.querySelector('#addressOffice').value;
 			const telOffice = document.querySelector('#telOffice').value;
 			const cityOffice = document.querySelector('#cityOffice').value;
 
 			// Validar campos
-			if (isEmpty(addressOffice) ||isEmpty(telOffice) || isEmpty(cityOffice)) {
+			if (isEmpty(addressOffice) || isEmpty(telOffice) || isEmpty(cityOffice)) {
 				alert('Todos los campos deben ser completados.');
 				return;
 			}
@@ -267,22 +266,39 @@ document.addEventListener('DOMContentLoaded', function () {
 					addres: addressOffice,
 					telephone: telOffice,
 					city: {
-						id: cityOffice // Asume que cityOffice es el ID de la ciudad. Si es un objeto completo, ajusta esto.
+						id: cityOffice
 					}
 				},
-				idCity: cityOffice // Si idCity debe ser diferente al ID de la ciudad, ajústalo en consecuencia.
+				idCity: cityOffice
 			};
 
-			postFunction(officeDTO, "office");
+			await postFunction(officeDTO, "office");
 			alert('Producto guardado con éxito.');
+			addOfficeMenu(e); 
+
 		});
 
 	}
 
+	const fetchAndDisplayData = () => {
+		createTable(dataOffices);
+		updatePagination(dataOffices.length, currentPage, itemsPerPage, (pageNum) => {
+			currentPage = pageNum;
+			fetchAndDisplayData(); // Volver a cargar los datos con la nueva página
+		});
+	};
+
 	const createTable = (data) => {
 		let tbody = document.querySelector(".tbody");
 		tbody.innerHTML = ``;
-		data.forEach((opcion, index) => {
+
+		// Calcular el índice inicial y final de los elementos a mostrar
+		const startIndex = (currentPage - 1) * itemsPerPage;
+		const endIndex = Math.min(startIndex + itemsPerPage, data.length);
+
+		// Añadir las filas correspondientes a la tabla
+		for (let i = startIndex; i < endIndex; i++) {
+			const opcion = data[i];
 			const newRow = document.createElement('tr');
 
 			const th1 = document.createElement('th');
@@ -293,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			radioInput.classList.add('form-check-input');
 			radioInput.type = 'radio';
 			radioInput.name = 'flexRadioDefault';
-			radioInput.id = `flexRadioDefault${index}`;
+			radioInput.id = `flexRadioDefault${i}`;
 
 			th1.appendChild(radioInput);
 			newRow.appendChild(th1);
@@ -315,6 +331,6 @@ document.addEventListener('DOMContentLoaded', function () {
 			newRow.appendChild(td4);
 
 			tbody.appendChild(newRow);
-		});
-	}
+		}
+	};
 });

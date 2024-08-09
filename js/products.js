@@ -1,5 +1,7 @@
 import { isEmpty, isPositiveInteger, isPositiveNumber } from './validations.js';
 import { getFunction, postFunction, putFunction, delFunction } from '../api/apirest.js';
+import { updatePagination } from './pagination.js';
+
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -10,10 +12,14 @@ document.addEventListener('DOMContentLoaded', function () {
 	seeProducts.addEventListener("click", seeProductsMenu)
 	addProducts.addEventListener("click", addProductsMenu)
 
+	const itemsPerPage = 5; // Número de oficinas por página
+	let currentPage = 1; // Página actual
+	let dataProducts = []; // Datos de oficinas globales
+
 	async function seeProductsMenu(e) {
 		e.preventDefault();
 		const respuesta = await getFunction("products");
-		const dataProducts = respuesta.products;
+		dataProducts = respuesta.products;
 		const dataGamma = respuesta.gammas;
 		productContent.innerHTML = ``;
 		// Genera el contenido HTML para los productos
@@ -61,15 +67,6 @@ document.addEventListener('DOMContentLoaded', function () {
     <br>
     <nav aria-label="Page navigation example">
         <ul class="pagination pagination-sm justify-content-center">
-            <li class="page-item disabled">
-                <a class="page-link">Previous</a>
-            </li>
-            <li class="page-item"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item">
-                <a class="page-link" href="#">Next</a>
-            </li>
         </ul>
     </nav>
     <section id="modal">
@@ -139,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-success">Guardar</button>
+                        <button type="button" class="btn btn-success"  data-bs-dismiss="modal">Guardar</button>
                         <button type="button" class="btn btn-danger btnEliminar" data-bs-target="#exampleModalToggle2" data-bs-toggle="modal">Eliminar</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
@@ -167,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function () {
 `;
 
 		// Rellena la tabla con los productos
-		createTable(dataProducts);
+		fetchAndDisplayData(); // Inicializa la tabla y la paginación
 
 		// Rellena el select de gamma en el modal		
 		let selectForGamma = document.querySelector(".form-gamma");
@@ -229,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				alert("Por favor, selecciona un producto.");
 			}
 
-			document.querySelector('.btn-success').addEventListener('click', function () {
+			document.querySelector('.btn-success').addEventListener('click', async function () {
 				// Obtener valores de los campos
 				const productCode = document.getElementById('codigoProducto').value;
 				const productName = document.getElementById('nombreProducto').value;
@@ -292,8 +289,9 @@ document.addEventListener('DOMContentLoaded', function () {
 					"gammaCode": productGamma
 				};
 
-				putFunction(productCode, product, "products")
+				await putFunction(productCode, product, "products")
 				alert('Producto actualizado con éxito.');
+				seeProductsMenu(e);
 			});
 			
 			document.querySelector('.btnConfDel').addEventListener('click', async function () {
@@ -302,8 +300,10 @@ document.addEventListener('DOMContentLoaded', function () {
 					await delFunction(productCode, "products");
 					alert('Producto eliminado con éxito.');
 				} catch (error) {
-					alert('No es posible eliminar');
+					console.error('Error al eliminar el producto:', error);
+					alert('No es posible eliminar el producto. Intenta de nuevo más tarde.');
 				}
+				seeProductsMenu(e);
 			});
 		});
 	}
@@ -387,7 +387,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			select.appendChild(newOption);
 		});
 
-		document.getElementById('saveButton').addEventListener('click', function () {
+		document.getElementById('saveButton').addEventListener('click', async function () {
 			// Obtener valores de los campos
 			const productCode = document.getElementById('productCode').value;
 			const productName = document.getElementById('productName').value;
@@ -450,16 +450,32 @@ document.addEventListener('DOMContentLoaded', function () {
 				},
 				"gammaCode": productGamma
 			};
-			postFunction(product, "products");
+			await postFunction(product, "products");
 			alert('Producto guardado con éxito.');
+			addProductsMenu(e);
 		});
 
 	}
 
+	const fetchAndDisplayData = () => {
+		createTable(dataProducts);
+		updatePagination(dataProducts.length, currentPage, itemsPerPage, (pageNum) => {
+			currentPage = pageNum;
+			fetchAndDisplayData(); // Volver a cargar los datos con la nueva página
+		});
+	};
+
 	const createTable = (data) => {
 		let tbody = document.querySelector(".tbody");
 		tbody.innerHTML = ``;
-		data.forEach((opcion, index) => {
+		
+		// Calcular el índice inicial y final de los elementos a mostrar
+		const startIndex = (currentPage - 1) * itemsPerPage;
+		const endIndex = Math.min(startIndex + itemsPerPage, data.length);
+
+		// Añadir las filas correspondientes a la tabla
+		for (let i = startIndex; i < endIndex; i++) {
+			const opcion = data[i];
 			const newRow = document.createElement('tr');
 
 			const th1 = document.createElement('th');
@@ -470,7 +486,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			radioInput.classList.add('form-check-input');
 			radioInput.type = 'radio';
 			radioInput.name = 'flexRadioDefault';
-			radioInput.id = `flexRadioDefault${index}`;
+			radioInput.id = `flexRadioDefault${i}`;
 
 			th1.appendChild(radioInput);
 			newRow.appendChild(th1);
@@ -488,6 +504,6 @@ document.addEventListener('DOMContentLoaded', function () {
 			newRow.appendChild(td3);
 
 			tbody.appendChild(newRow);
-		});
-	}
+		}
+	};
 });

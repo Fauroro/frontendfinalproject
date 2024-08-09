@@ -61,16 +61,42 @@ const putFunction = async (id, datos, endpoint) => {
     return res.id;
 };
 
-// Modificación de la función delFunction para usar makeAuthenticatedRequest
+// // Modificación de la función delFunction para usar makeAuthenticatedRequest
+// const delFunction = async (id, endpoint) => {
+//     const url = `${URL_API}${endpoint}/${id}`;
+    
+//     const response = await makeAuthenticatedRequest(url, {
+//         method: "DELETE"
+//     });
+
+//     const res = await response.json();
+//     return res.id;
+// };
 const delFunction = async (id, endpoint) => {
     const url = `${URL_API}${endpoint}/${id}`;
     
-    const response = await makeAuthenticatedRequest(url, {
-        method: "DELETE"
-    });
+    try {
+        const response = await makeAuthenticatedRequest(url, {
+            method: "DELETE"
+        });
 
-    const res = await response.json();
-    return res.id;
+        // Verifica el estado de la respuesta
+        if (response.status === 204) {
+            // La respuesta fue exitosa pero no tiene contenido
+            return null;  // O cualquier valor que desees retornar en caso de éxito
+        } else if (response.status === 404) {
+            // La entidad no se encontró
+            throw new Error('Entidad no encontrada');
+        } else {
+            // Manejo de otros códigos de estado HTTP, si es necesario
+            throw new Error(`Error inesperado: ${response.status}`);
+        }
+    } catch (error) {
+        // Manejo de errores de la solicitud
+        console.error('Error al realizar la solicitud:', error);
+        throw error;  // Vuelve a lanzar el error para que pueda ser manejado por quien llame a esta función
+    }
 };
+
 
 export { getFunction, postFunction, putFunction, delFunction };
