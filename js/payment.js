@@ -252,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function () {
 					payTypeId: parseInt(paymentType, 10)
 				};
 				await putFunction(parseInt(clientCode), paymentDTO, "payment")
-				alert('Producto actualizado con éxito.');
+				alert('Pago actualizado con éxito.');
 				seePaymentMenu(e);
 			});
 			
@@ -260,10 +260,10 @@ document.addEventListener('DOMContentLoaded', function () {
 				const codigoPago = document.getElementById('codigoPago').value;
 				try {
 					await delFunction(codigoPago, "payment/payments");
-					alert('Producto eliminado con éxito.');
+					alert('Pago eliminado con éxito.');
 				} catch (error) {
-					console.error('Error al eliminar el producto:', error);
-					alert('No es posible eliminar el producto. Intenta de nuevo más tarde.');				
+					console.error('Error al eliminar el Pago:', error);
+					alert('No es posible eliminar el Pago. Intenta de nuevo más tarde.');				
 				}
 				seePaymentMenu(e);
 			});
@@ -361,7 +361,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			};
 
 			await postFunction(paymentDTO, "payment");
-			alert('Producto guardado con éxito.');
+			alert('Pago guardado con éxito.');
 			addPaymentMenu(e);
 		});
 

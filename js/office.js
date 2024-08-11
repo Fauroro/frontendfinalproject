@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function () {
 					document.querySelector('#cityOffice').value = oficina.city ? oficina.city.id : '';
 				}
 			} else {
-				alert("Por favor, selecciona un cliente.");
+				alert("Por favor, selecciona una ciudad.");
 			}
 
 			document.querySelector('.btn-success').addEventListener('click', async function () {
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function () {
 					idCity: parseInt(cityOffice)
 				};
 				await putFunction(parseInt(officeId), officeDTO, "office")
-				alert('Producto actualizado con éxito.');
+				alert('Oficina actualizada con éxito.');
 				seeOfficeMenu(e); // Recarga la vista de oficinas
 
 			});
@@ -193,10 +193,10 @@ document.addEventListener('DOMContentLoaded', function () {
 				const officeId = document.getElementById('officeId').value;
 				try {
 					await delFunction(officeId, "office");
-					alert('Producto eliminado con éxito.');
+					alert('Oficina eliminada con éxito.');
 				} catch (error) {
-					console.error('Error al eliminar el producto:', error);
-					alert('No es posible eliminar el producto. Intenta de nuevo más tarde.');
+					console.error('Error al eliminar la oficina:', error);
+					alert('No es posible eliminar la oficina. Intenta de nuevo más tarde.');
 				}
 				seeOfficeMenu(e); 
 			});
@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			};
 
 			await postFunction(officeDTO, "office");
-			alert('Producto guardado con éxito.');
+			alert('Oficina guardada con éxito.');
 			addOfficeMenu(e); 
 
 		});

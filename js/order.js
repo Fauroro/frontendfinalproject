@@ -280,8 +280,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     await delFunction(orderCode, "orders");
                     alert('Orden eliminada con éxito.');
                 } catch (error) {
-					console.error('Error al eliminar el producto:', error);
-					alert('No es posible eliminar el producto. Intenta de nuevo más tarde.');                
+					console.error('Error al eliminar el pedido:', error);
+					alert('No es posible eliminar el pedido. Intenta de nuevo más tarde.');                
                 }
                 seeOrdersMenu(e);
             });

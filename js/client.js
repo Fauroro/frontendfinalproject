@@ -259,7 +259,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				};
 
 				await putFunction(parseInt(clientCode), client, "clients")
-				alert('Producto actualizado con éxito.');
+				alert('Cliente actualizado con éxito.');
 				seeClientsMenu(e); // Recarga la vista de oficinas
 			});
 			
@@ -267,10 +267,10 @@ document.addEventListener('DOMContentLoaded', function () {
 				const clientCode = document.getElementById('codigoCliente').value;
 				try {
 					await delFunction(clientCode, "clients");
-					alert('Producto eliminado con éxito.');
+					alert('Cliente eliminado con éxito.');
 				} catch (error) {
-					console.error('Error al eliminar el producto:', error);
-					alert('No es posible eliminar el producto. Intenta de nuevo más tarde.');
+					console.error('Error al eliminar el Cliente:', error);
+					alert('No es posible eliminar el Cliente. Intenta de nuevo más tarde.');
 				}
 				seeClientsMenu(e);
 			});

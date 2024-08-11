@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		searchOfficeIdButton.addEventListener('click', async () => {
 			const officeId = inputForOfficeId.value;
 			if (isPositiveInteger(officeId)) {
-				alert('El Id del cliente debe ser un número entero positivo.');
+				alert('El Id del empleado debe ser un número entero positivo.');
 				return;
 			}
 			const employeeForOfficeId = await getFunction(`employee/employeesoffice/${officeId}`);
@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function () {
 					document.querySelector('#OfficeId').value = empleado.office ? empleado.office.id : ''; 
 				}
 			} else {
-				alert("Por favor, selecciona un cliente.");
+				alert("Por favor, selecciona un empleado.");
 			}
 
 			document.querySelector('.btn-success').addEventListener('click', async function () {
@@ -271,7 +271,7 @@ document.addEventListener('DOMContentLoaded', function () {
 					idOffice: parseInt(officeId, 10)
 				};
 				await putFunction(parseInt(codigoEmpleado), employeeUpdateDTO, "employee")
-				alert('Producto actualizado con éxito.');
+				alert('Empleado actualizado con éxito.');
 				seeEmployeeMenu(e);
 			});
 
@@ -279,10 +279,10 @@ document.addEventListener('DOMContentLoaded', function () {
 				const codigoEmpleado = document.getElementById('codigoEmpleado').value;
 				try {
 					await delFunction(parseInt(codigoEmpleado), "employee");
-					alert('Producto eliminado con éxito.');
+					alert('Empleado eliminado con éxito.');
 				} catch (error) {
-					console.error('Error al eliminar el producto:', error);
-					alert('No es posible eliminar el producto. Intenta de nuevo más tarde.');
+					console.error('Error al eliminar el Empleado:', error);
+					alert('No es posible eliminar el Empleado. Intenta de nuevo más tarde.');
 				}
 				seeEmployeeMenu
 			});
@@ -411,7 +411,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		  };
 
 			await postFunction(employeeUpdateDTO, "employee");
-			alert('Producto guardado con éxito.');
+			alert('Empleado guardado con éxito.');
 			addEmployeeMenu(e);
 		});
 
